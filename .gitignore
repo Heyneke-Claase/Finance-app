@@ -18,6 +18,20 @@
 .env.test.local
 .env.production.local
 
+# dotenv environment files
+.env
+server/.env
+
+# server dependencies
+/server/node_modules
+
+# server build output (if you ever build frontend into server/public)
+/server/public
+
+# logs
+*.log
+server/*.log
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

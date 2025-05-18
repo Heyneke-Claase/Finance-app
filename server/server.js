@@ -6,6 +6,7 @@ const multer = require('multer');
 const nodemailer = require('nodemailer');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const fs = require('fs');
 
 const app = express();
 
@@ -33,7 +34,12 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
+    if (
+      file.mimetype.startsWith('image/') ||
+      file.mimetype === 'application/pdf' ||
+      file.mimetype === 'application/msword' ||
+      file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ) {
       cb(null, true);
     } else {
       cb(new Error('Invalid file type'), false);
@@ -205,9 +211,18 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
-// Serve frontend
+// Serve frontend (only if index.html exists)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    // In development, if index.html doesn't exist, return a JSON message
+    res.status(404).json({
+      success: false,
+      message: 'Frontend not built. Please run "npm run build" in your React app.'
+    });
+  }
 });
 
 // Error handling

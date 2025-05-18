@@ -50,7 +50,12 @@ function ApplicationForm() {
     const data = new FormData();
     // In server.js, it expects 'first-name' and 'last-name'
     // Splitting fullName for this example, adjust as needed
-    const nameParts = formData.fullName.split(' ');
+    const nameParts = formData.fullName.trim().split(' ');
+    if (nameParts.length < 2) {
+      setSubmissionMessage({ type: 'danger', text: 'Please enter both your first and last name.' });
+      setIsSubmitting(false);
+      return;
+    }
     data.append('first-name', nameParts[0] || '');
     data.append('last-name', nameParts.slice(1).join(' ') || '');
     data.append('id-number', formData.idNumber);
@@ -69,7 +74,7 @@ function ApplicationForm() {
 
     // The endpoint in your script.js is /api/submit-loan,
     // but in server.js it's /api/applications
-    const serverUrl = '/api/applications'; // Assuming proxy is set up or same origin
+    const serverUrl = 'http://localhost:5000/api/applications'; // Use full backend URL to avoid proxy issues
 
     try {
       const response = await fetch(serverUrl, {
@@ -178,7 +183,7 @@ function ApplicationForm() {
                   <Col md={6}>
                     <Form.Group controlId="payslip">
                       <Form.Label>Upload Proof of Income (Optional)</Form.Label>
-                      <Form.Control type="file" name="attachment" onChange={handleFileChange} size="lg" />
+                      <Form.Control type="file" name="attachment" onChange={handleFileChange} size="lg" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
                       <Form.Text muted>Latest payslip or bank statement speeds up approval.</Form.Text>
                     </Form.Group>
                   </Col>
